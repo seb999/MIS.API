@@ -1,0 +1,11 @@
+C:\Users\sdubos\source\repos\ECDC.MIS.API\ECDC.MIS.API\bin\Any CPU\Release\netcoreapp2.0\ECDC.MIS.API.deps.json
+C:\Users\sdubos\source\repos\ECDC.MIS.API\ECDC.MIS.API\bin\Any CPU\Release\netcoreapp2.0\ECDC.MIS.API.runtimeconfig.json
+C:\Users\sdubos\source\repos\ECDC.MIS.API\ECDC.MIS.API\bin\Any CPU\Release\netcoreapp2.0\ECDC.MIS.API.runtimeconfig.dev.json
+C:\Users\sdubos\source\repos\ECDC.MIS.API\ECDC.MIS.API\bin\Any CPU\Release\netcoreapp2.0\ECDC.MIS.API.dll
+C:\Users\sdubos\source\repos\ECDC.MIS.API\ECDC.MIS.API\bin\Any CPU\Release\netcoreapp2.0\ECDC.MIS.API.pdb
+C:\Users\sdubos\source\repos\ECDC.MIS.API\ECDC.MIS.API\obj\Any CPU\Release\netcoreapp2.0\ECDC.MIS.API.csproj.CoreCompileInputs.cache
+C:\Users\sdubos\source\repos\ECDC.MIS.API\ECDC.MIS.API\obj\Any CPU\Release\netcoreapp2.0\ECDC.MIS.API.AssemblyInfoInputs.cache
+C:\Users\sdubos\source\repos\ECDC.MIS.API\ECDC.MIS.API\obj\Any CPU\Release\netcoreapp2.0\ECDC.MIS.API.AssemblyInfo.cs
+C:\Users\sdubos\source\repos\ECDC.MIS.API\ECDC.MIS.API\obj\Any CPU\Release\netcoreapp2.0\ECDC.MIS.API.dll
+C:\Users\sdubos\source\repos\ECDC.MIS.API\ECDC.MIS.API\obj\Any CPU\Release\netcoreapp2.0\ECDC.MIS.API.pdb
+C:\Users\sdubos\source\repos\ECDC.MIS.API\ECDC.MIS.API\obj\Any CPU\Release\netcoreapp2.0\ECDC.MIS.API.csprojResolveAssemblyReference.cache
