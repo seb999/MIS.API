@@ -44,7 +44,7 @@ namespace ECDC.MIS.API.Controllers
                              Amount = expense.ExpenseAmount,
                              ExpenseTypeName = expense.ExpenseType == null ? "" : expense.ExpenseType.ExpenseTypeName,
                              BudgetLineName = expense.BudgetLine.BudgetLineName,
-                             OrganiserPicture = SetUserPicture(expense.UserIdOwnerNavigation),
+                             //OrganiserPicture = SetUserPicture(expense.UserIdOwnerNavigation),
                          }).ToList();
 
             return query;

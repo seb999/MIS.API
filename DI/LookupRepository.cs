@@ -105,7 +105,7 @@ namespace ECDC.MIS.API.DI
             //BudgetTransferStatusList = GetLookupListNew<PendingTransferStatus>(misContext.PendingTransferStatus);
             //ExpenseStaffStatusList = GetLookupListNew<ExpenseStaffStatus>(misContext.ExpenseStaffStatus);
             UnitList = GetLookupListNew<Unit>(misContext.Unit);
-            //ExpenseTypeList = GetLookupListNew<ExpenseType>(misContext.ExpenseType);
+            ExpenseTypeList = GetLookupListNew<ExpenseType>(misContext.ExpenseType);
             UserList = GetLookupListNew<UserApplication>(misContext.UserApplication).OrderBy(p => p.Text).ToList();
             //ProcStatusList = GetLookupListNew<ProcurementStatus>(misContext.ProcurementStatus).OrderBy(p => Int32.Parse(p.ExtraData)).ToList() ;
             //ProcTimingStatusList = GetLookupListNew<ProcurementTimingStatus>(misContext.ProcurementTimingStatus);

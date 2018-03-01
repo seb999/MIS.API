@@ -38,7 +38,7 @@ namespace ECDC.MIS.API.DI
             this.memoryCache = memoryCache;
             HttpContext httpContext = new HttpContextAccessor().HttpContext;
 
-            defaultUserPictureUrl = server.WebRootPath + @"\images\DefaultUser.png";
+            defaultUserPictureUrl = server.WebRootPath + @"/images/DefaultUser.png";
 
             //Get current user
             string userName = GetCurrentUserLoginName(httpContext);
@@ -69,7 +69,7 @@ namespace ECDC.MIS.API.DI
                 userName = nameSplit[1];
                 return userName;
             }
-            else return "";
+            else return "SDubos";
         }
 
         private UserApplication GetUserDetails(MISContext MISContext, string userName)

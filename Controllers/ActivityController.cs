@@ -51,7 +51,7 @@ namespace ECDC.MIS.API.Controllers
                 .Where(p => p.AWPId == awpId)
                 .Where(p => p.ActivityIsDeleted.GetValueOrDefault() != true)
                 .Where(p => p.ActivityIsValidated == true)
-                .Where(p => p.ActivityIsApproved == true)
+                //.Where(p => p.ActivityIsApproved == true)
                 .Select(activity => new {
                     activity.ActivityId,
                     activity.ActivityName,
@@ -183,6 +183,7 @@ namespace ECDC.MIS.API.Controllers
             }
             catch (Exception ex)
             {
+                var ttt= ex;
                 //logService.SaveLog(lookupUser.CurrentUser.UserId, LogType.Error, MISPage.ActivityPage, ex, Method.SaveActivity);
                 return null;
             }

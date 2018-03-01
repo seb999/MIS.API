@@ -18,7 +18,7 @@ namespace ECDC.MIS.API.Controllers
         private readonly List<LookupExpenseItem> expenseLookupList;
         private readonly UserApplication currentUser;
         private readonly long stockholmLocationId;
-        private readonly string meetingManagerEmail;
+        //private readonly string meetingManagerEmail;
 
 
         public MeetingController([FromServices]MISContext misContext, ILookupUser lookupUser, ILookupExpense lookupExpense)
@@ -55,7 +55,7 @@ namespace ECDC.MIS.API.Controllers
                .Where(p=>p.ExpenseIsApproved == true)
                .Where(p => p.Activity.ActivityIsDeleted != true)
                .Where(p => p.Activity.ActivityIsValidated == true)
-               .Where(p => p.Activity.ActivityIsApproved == true)
+               //.Where(p => p.Activity.ActivityIsApproved == true)
                .Select(expense => new
                {
                    expense,

@@ -48,8 +48,11 @@ namespace ECDC.MIS.API
             services.AddTransient<ILookupExpense, LookupExpense>();
             services.AddTransient<LookupExpense>();
 
+            // services.AddDbContextPool<MISContext>(options =>
+            //     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddDbContextPool<MISContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+               options.UseMySql(Configuration.GetConnectionString("DefaultConnection")));
+
 
             services.AddMvc();
 

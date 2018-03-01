@@ -6,6 +6,7 @@ namespace ECDC.MIS.API.TransferClass
     public class ExpenseTransfer
     {
         public long? ActivityId { get; set; }
+        public string ActivityCode{ get; set; }
         public decimal? Amount { get; set; }
         public decimal? AmountCommitted { get; set; }
         public long? BudgetLineId { get; set; }
@@ -23,7 +24,7 @@ namespace ECDC.MIS.API.TransferClass
         public DateTime? EndDate { get; set; }
         public decimal? AmountPaid { get; set; }
         public string Organiser { get; set; }
-        public string OrganiserPicture { get; set; }       
+        public byte[] OrganiserPicture { get; set; }       
         public int? MeetingDuration { get; set; }
         public int? MeetingNumExtParticipants { get; set; }
         public int? MeetingNumIntParticipants { get; set; }
@@ -56,6 +57,8 @@ namespace ECDC.MIS.API.TransferClass
         public long? SpdKeyOutputId { get; set; }
         public long? SpdObjectiveId { get; set; }
         public string ProcComment { get; set; }
-        public decimal TotalRequestedFte { get; internal set; }
+        public decimal TotalRequestedFte { get;  set; }
+        public long ActivityUnitId{ get;  set; }
+        public long ActivityDpId{ get;  set; }
     }
 }
