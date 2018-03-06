@@ -51,7 +51,7 @@ namespace ECDC.MIS.API.Controllers
         }
 
         [HttpGet]
-        [Route("ActivityId/{activityId}")]
+        [Route("GetExpense/{activityId}")]
         public List<ExpenseTransfer> GetExpense(long activityId)
         {
             var query = (from expense in misContext.Expense

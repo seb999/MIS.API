@@ -47,9 +47,21 @@ namespace ECDC.MIS.API.Controllers
                             ActualDay = expenseStaff.ExpenseStaffActualDay,
                             ActualFte = expenseStaff.ExpenseStaffActualFte,
                             IsPriority = expenseStaff.ExpenseStaffIsPriority,
+                            StaffPicture = SetUserPicture(expenseStaff.UserId.GetValueOrDefault()),
                         };
             return query.OrderBy(p=>p.StaffName).ToList();
         }
+
+        public byte[] SetUserPicture(long userId)
+        {
+            byte[] picture = misContext.UserApplication.Where(p => p.UserId == userId).Select(p => p.UserPicture).FirstOrDefault();
+            if (picture == null)
+                //return Helper.ImageToByte(defaultUserPictureUrl);
+                return null;
+
+            return (picture);
+        }
+
 
         /// <summary>
         /// Return list of ExpenseStaff for a userId, used in Request FTE
@@ -83,7 +95,7 @@ namespace ECDC.MIS.API.Controllers
                         .Include(p => p.UserApplication)
                         .Include(p => p.Expense).ThenInclude(p => p.Activity)
                         .Where(p => p.Expense.Activity.AWPId.GetValueOrDefault() == awpId)
-                        .Where(p => p.UserApplication.UserId == userId)
+                        .Where(p => (userId==0) || p.UserApplication.UserId == userId)
                         .Where(p => p.Expense.Activity.ActivityIsDeleted.GetValueOrDefault() != true)
                         .Where(p => p.Expense.Activity.ActivityIsValidated.GetValueOrDefault() == true).ToList()
                         select new ExpenseStaffTransfer()

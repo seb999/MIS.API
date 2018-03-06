@@ -25,7 +25,7 @@ namespace ECDC.MIS.API.TransferClass
         public long? UserAdded { get; set; }
         public long? UserMod { get; set; }
         public string ExpenseType { get; set; }
-        public string StaffPicture { get; set; }
+        public byte[] StaffPicture { get; set; }
         public long AwpId { get; set; }
         public long StaffId { get; set; }
         public long? ActivityId { get; set; }

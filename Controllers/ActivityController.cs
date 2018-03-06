@@ -32,6 +32,8 @@ namespace ECDC.MIS.API.Controllers
             this.lookupUser = lookupUser;
         }
 
+        #region Activity list and Expense list related for Activity page
+
         [HttpGet]
         [Route("{awpId}")]
         //[ResponseCache(NoStore = true, Duration = 0)]
@@ -106,6 +108,33 @@ namespace ECDC.MIS.API.Controllers
 
             return activities;
         }
+
+        /// <summary>
+        /// Return basic expense list for an activity. Used only in for the activity grid for performance reason
+        /// </summary>
+        /// <param name="expenseList">The basic expense list</param>
+        /// <returns></returns>
+        private List<ExpenseTransfer> GetExpenseList(ICollection<Expense> expenseList)
+        {
+            var query = (from expense in expenseList
+                    
+                         select new ExpenseTransfer()
+                         {
+                             ExpenseId = expense.ExpenseId,
+                             ExpenseName = expense.ExpenseName,
+                             BudgetLineId = expense.BudgetLineId.GetValueOrDefault(),
+                             BudgetLineName = expense.BudgetLine == null ? "" : expense.BudgetLine.BudgetLineName,
+                             InitialAmount = expense.ExpenseInitialAmount,
+                             Amount = expense.ExpenseAmount,
+                             ExpenseTypeName = expense.ExpenseType == null ? "" : expense.ExpenseType.ExpenseTypeName,
+                             //OrganiserPicture = expense.UserIdOwnerNavigation == null ? SetUserPicture2(null) : SetUserPicture2(expense.UserIdOwnerNavigation.UserPicture),
+                         }).ToList();
+            return query;
+        }
+
+        #endregion
+
+        #region Get activity detail
 
         [HttpGet]
         [Route("GetActivity/{activityId}")]
@@ -202,6 +231,10 @@ namespace ECDC.MIS.API.Controllers
             return expenseController.GetExpense(activityId);
         }
 
+        #endregion
+
+        #region Get Activity for home page (Activity where current user is staff or leader)
+
         /// <summary>
         /// Used for home page to display user activities
         /// </summary>
@@ -248,6 +281,10 @@ namespace ECDC.MIS.API.Controllers
             return query;
         }
 
+        #endregion
+
+        #region helper
+
         [HttpGet]
         [Route("userPicture/{activityId}")]
         [ResponseCache(NoStore = true, Duration = 0)]
@@ -258,29 +295,6 @@ namespace ECDC.MIS.API.Controllers
                 return Convert.ToBase64String(Helper.ImageToByte(defaultUserPictureUrl)).Substring(1);
 
             return Convert.ToBase64String(picture).Substring(1);
-        }
-
-        /// <summary>
-        /// Return basic expense list for an activity. Used only in for the activity grid for performance reason
-        /// </summary>
-        /// <param name="expenseList">The basic expense list</param>
-        /// <returns></returns>
-        private List<ExpenseTransfer> GetExpenseList(ICollection<Expense> expenseList)
-        {
-            var query = (from expense in expenseList
-                    
-                         select new ExpenseTransfer()
-                         {
-                             ExpenseId = expense.ExpenseId,
-                             ExpenseName = expense.ExpenseName,
-                             BudgetLineId = expense.BudgetLineId.GetValueOrDefault(),
-                             BudgetLineName = expense.BudgetLine == null ? "" : expense.BudgetLine.BudgetLineName,
-                             InitialAmount = expense.ExpenseInitialAmount,
-                             Amount = expense.ExpenseAmount,
-                             ExpenseTypeName = expense.ExpenseType == null ? "" : expense.ExpenseType.ExpenseTypeName,
-                             //OrganiserPicture = expense.UserIdOwnerNavigation == null ? SetUserPicture2(null) : SetUserPicture2(expense.UserIdOwnerNavigation.UserPicture),
-                         }).ToList();
-            return query;
         }
 
         /// <summary>
@@ -299,17 +313,6 @@ namespace ECDC.MIS.API.Controllers
             return Convert.ToBase64String(activity.UserIdActivityLeaderNavigation.UserPicture);
         }
 
-        /// <summary>
-        /// Set up the user picture or default picture
-        /// </summary>
-        /// <param name="activity"></param>
-        /// <returns></returns>
-        private string SetUserPicture2(byte[] picture)
-        {
-            if (picture == null)
-                return Convert.ToBase64String(Helper.ImageToByte(defaultUserPictureUrl));
-
-            return Convert.ToBase64String(picture);
-        }
+        #endregion
     }
 }
