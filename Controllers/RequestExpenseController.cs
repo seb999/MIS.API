@@ -51,7 +51,7 @@ namespace ECDC.MIS.API.Controllers
                     ExpenseName = p.ExpenseName,
                     ExpenseTypeName = p.ExpenseType != null ? p.ExpenseType.ExpenseTypeName : null,
                     BudgetLineName = p.BudgetLine != null ? p.BudgetLine.BudgetLineName : null,
-                    OrganiserPicture = SetUserPicture(p.UserIdOwner.GetValueOrDefault()),
+                    OrganiserPicture = Helper.SetUserPicture(p.UserIdOwnerNavigation,defaultUserPictureUrl), // SetUserPicture(p.UserIdOwner.GetValueOrDefault()),
                     Organiser = p.UserIdOwnerNavigation == null ? "" : p.UserIdOwnerNavigation.UserFirstName + " " + p.UserIdOwnerNavigation.UserLastName,
                });
               
@@ -94,8 +94,8 @@ namespace ECDC.MIS.API.Controllers
                     ExpenseId = item.ExpenseId,
                     ExpenseName = item.ExpenseName,
                     ActivityCode = Helper.GetCode(new Activity() { ActivityId = item.Activity.ActivityId, ActivityCodeSequence = item.Activity.ActivityCodeSequence, Strategy = item.Activity.Strategy, Unit = item.Activity.Unit, Awp = item.Activity.Awp, Dsp = item.Activity.Dsp }),
-                    ActivityUnitId = item.Activity.UnitId.GetValueOrDefault(),
-                    ActivityDpId = item.Activity.DSPId.GetValueOrDefault(),
+                    UnitId = item.Activity.UnitId.GetValueOrDefault(),
+                    DpId = item.Activity.DSPId.GetValueOrDefault(),
                     ExpenseTypeId = item.ExpenseTypeId.GetValueOrDefault(),
                     ExpenseTypeName = item.ExpenseType !=null ? item.ExpenseType.ExpenseTypeName : null,
                     StartDate = item.ExpenseStartDate,
@@ -110,14 +110,14 @@ namespace ECDC.MIS.API.Controllers
 
         #region helper
 
-        public byte[] SetUserPicture(long userId)
-        {
-            byte[] picture = misContext.UserApplication.Where(p => p.UserId == userId).Select(p => p.UserPicture).FirstOrDefault();
-            if (picture == null)
-                return Helper.ImageToByte(defaultUserPictureUrl);
+        //public byte[] SetUserPicture(long userId)
+        //{
+        //    byte[] picture = misContext.UserApplication.Where(p => p.UserId == userId).Select(p => p.UserPicture).FirstOrDefault();
+        //    if (picture == null)
+        //        return Helper.ImageToByte(defaultUserPictureUrl);
 
-            return (picture);
-        }
+        //    return (picture);
+        //}
 
         #endregion
     }

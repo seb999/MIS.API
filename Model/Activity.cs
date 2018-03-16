@@ -101,9 +101,9 @@ namespace ECDC.MIS.API.Model
         public bool? ActivityIsEnpCountries { get; set; }
         public bool? ActivityIsOtherThirdCountries { get; set; }
         public long? PlatoStatusId { get; set; }
-        //public bool? ActivityIsRequested { get; set; }
-        //public bool? ActivityIsApproved { get; set; }
-        //public bool? ActivityIsRejected { get; set; }
+        public bool? ActivityIsRequested { get; set; }
+        public bool? ActivityIsApproved { get; set; }
+        public bool? ActivityIsRejected { get; set; }
 
         public ActivityApprovalStatus ActAppStatus { get; set; }
         public ActivityStatus ActStatus { get; set; }

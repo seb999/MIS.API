@@ -5,6 +5,7 @@ using ECDC.MIS.API.DI;
 using ECDC.MIS.API.Misc;
 using ECDC.MIS.API.Model;
 using ECDC.MIS.API.TransferClass;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,13 +16,15 @@ namespace ECDC.MIS.API.Controllers
     {
         private readonly MISContext misContext;
         private readonly UserApplication currentUser;
+        private readonly string defaultUserPictureUrl;
         // private readonly ILookupActivity lookupActivity;
 
         //public ExpenseStaffController([FromServices]MISContext misContext, ILookupActivity lookupActivity)
-        public ExpenseStaffController([FromServices]MISContext misContext, ILookupUser lookupUser)
+        public ExpenseStaffController([FromServices]MISContext misContext, ILookupUser lookupUser, IHostingEnvironment server)
         {
             this.misContext = misContext;
             this.currentUser = lookupUser!=null ? lookupUser.CurrentUser: null;
+            this.defaultUserPictureUrl = server.WebRootPath + @"\images\DefaultUser.png";
             // this.lookupActivity = lookupActivity;
         }
 
@@ -47,20 +50,20 @@ namespace ECDC.MIS.API.Controllers
                             ActualDay = expenseStaff.ExpenseStaffActualDay,
                             ActualFte = expenseStaff.ExpenseStaffActualFte,
                             IsPriority = expenseStaff.ExpenseStaffIsPriority,
-                            StaffPicture = SetUserPicture(expenseStaff.UserId.GetValueOrDefault()),
+                            StaffPicture = Helper.SetUserPicture(expenseStaff.UserApplication, defaultUserPictureUrl),
                         };
             return query.OrderBy(p=>p.StaffName).ToList();
         }
 
-        public byte[] SetUserPicture(long userId)
-        {
-            byte[] picture = misContext.UserApplication.Where(p => p.UserId == userId).Select(p => p.UserPicture).FirstOrDefault();
-            if (picture == null)
-                //return Helper.ImageToByte(defaultUserPictureUrl);
-                return null;
+        //public byte[] SetUserPicture(long userId)
+        //{
+        //    byte[] picture = misContext.UserApplication.Where(p => p.UserId == userId).Select(p => p.UserPicture).FirstOrDefault();
+        //    if (picture == null)
+        //        //return Helper.ImageToByte(defaultUserPictureUrl);
+        //        return null;
 
-            return (picture);
-        }
+        //    return (picture);
+        //}
 
 
         /// <summary>

@@ -262,6 +262,19 @@ namespace ECDC.MIS.API.Misc
             }
         }
 
+        public static byte[] SetUserPicture(UserApplication user, string defaultUserPictureUrl)
+        {
+            if (user == null)
+                return ImageToByte(defaultUserPictureUrl);
+
+            if (user.UserPicture == null)
+                return ImageToByte(defaultUserPictureUrl);
+
+            return user.UserPicture;
+
+           //eturn Convert.ToBase64String(owner.UserPicture);
+        }
+
         #endregion
 
         #region private methods

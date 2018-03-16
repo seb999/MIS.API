@@ -19,6 +19,7 @@ namespace ECDC.MIS.API.Controllers
         private readonly string defaultUserPictureUrl;
         private readonly UserApplication currentUser;
         private readonly ILookupUser lookupUser;
+        private readonly IHostingEnvironment hostingEnvironement;
 
         public ExpenseController([FromServices]MISContext misContext, IHostingEnvironment server, ILookupUser lookupUser)
         {
@@ -27,6 +28,7 @@ namespace ECDC.MIS.API.Controllers
             this.currentUser = lookupUser.CurrentUser;
             this.lookupUser = lookupUser;
             this.userApplicationList = lookupUser.UserApplicationList;
+            this.hostingEnvironement = server;
         }
 
         [HttpGet]
@@ -87,7 +89,7 @@ namespace ECDC.MIS.API.Controllers
                              //ExpenseDeliverableList = GetExpenseDeliverableList(expense.ExpenseId),
                              Organiser = expense.UserIdOwnerNavigation == null ? "" : expense.UserIdOwnerNavigation.UserFirstName + " " + expense.UserIdOwnerNavigation.UserLastName,
                              OrganiserId = expense.UserIdOwner,
-                             //OrganiserPicture = SetUserPicture(expense),
+                             OrganiserPicture = Helper.SetUserPicture(expense.UserIdOwnerNavigation, defaultUserPictureUrl),
                              AuthorisingOfficer = expense.UserIdAuthOfficerNavigation == null ? "" : expense.UserIdAuthOfficerNavigation.UserFirstName + " " + expense.UserIdAuthOfficerNavigation.UserLastName,
                              DateAdded = expense.DateAdded,
                              ExpenseNote = expense.ExpenseNote,
@@ -125,14 +127,15 @@ namespace ECDC.MIS.API.Controllers
                              //HistoryBudgetLine = PlatoHistoryController.GetHistoryList(expense.ExpenseHistory.ToList(), HistoryElement.BudgetLine),
                              //HistoryName = PlatoHistoryController.GetHistoryList(expense.ExpenseHistory.ToList(), HistoryElement.Name),
 
-                         }).Where(p => AddStaffPicture(p)).ToList();
+                        // }).Where(p => AddStaffPicture(p)).ToList();
+                            }).ToList();
 
             return query;
         }
 
         private List<ExpenseStaffTransfer> GetExpenseStaffList(long expenseId)
         {
-            ExpenseStaffController expenseStaffController = new ExpenseStaffController(misContext, null);
+            ExpenseStaffController expenseStaffController = new ExpenseStaffController(misContext, null, hostingEnvironement);
             return expenseStaffController.GetExpenseStaffList(expenseId);
         }
 
@@ -178,47 +181,47 @@ namespace ECDC.MIS.API.Controllers
 
         #region helper
 
-        private string SetUserPicture(UserApplication owner)
-        {
-            if (owner == null)
-                return Convert.ToBase64String(Helper.ImageToByte(defaultUserPictureUrl));
+        //private string SetUserPicture(UserApplication owner)
+        //{
+        //    if (owner == null)
+        //        return Convert.ToBase64String(Helper.ImageToByte(defaultUserPictureUrl));
 
-            if (owner.UserPicture == null)
-                return Convert.ToBase64String(Helper.ImageToByte(defaultUserPictureUrl));
+        //    if (owner.UserPicture == null)
+        //        return Convert.ToBase64String(Helper.ImageToByte(defaultUserPictureUrl));
 
-            return Convert.ToBase64String(owner.UserPicture);
-        }
+        //    return Convert.ToBase64String(owner.UserPicture);
+        //}
 
-        private byte[] SetUserPicture(Expense expense)
-        {
-            if (expense.UserIdOwnerNavigation == null) return Helper.ImageToByte(defaultUserPictureUrl);
-            if (expense.UserIdOwnerNavigation.UserPicture == null) return Helper.ImageToByte(defaultUserPictureUrl);
-            return expense.UserIdOwnerNavigation.UserPicture;
-        }
+        //private byte[] SetUserPicture(Expense expense)
+        //{
+        //    if (expense.UserIdOwnerNavigation == null) return Helper.ImageToByte(defaultUserPictureUrl);
+        //    if (expense.UserIdOwnerNavigation.UserPicture == null) return Helper.ImageToByte(defaultUserPictureUrl);
+        //    return expense.UserIdOwnerNavigation.UserPicture;
+        //}
 
-        /// <summary>
-        /// Add for each expense the list of staff attached (name + picture)
-        /// </summary>
-        /// <param name="expenseTransfer"></param>
-        /// <returns></returns>
-        private bool AddStaffPicture(ExpenseTransfer expenseTransfer)
-        {
-            expenseTransfer.StaffList = new List<object>();
+        ///// <summary>
+        ///// Add for each expense the list of staff attached (name + picture)
+        ///// </summary>
+        ///// <param name="expenseTransfer"></param>
+        ///// <returns></returns>
+        //private bool AddStaffPicture(ExpenseTransfer expenseTransfer)
+        //{
+        //    expenseTransfer.StaffList = new List<object>();
 
-            foreach (var item in expenseTransfer.StaffIdList)
-            {
-                byte[] staffPicture = this.userApplicationList.Where(p => p.UserId == item).Select(p => p.UserPicture).FirstOrDefault();
-                string staffName = this.userApplicationList.Where(p => p.UserId == item).Select(p => p.UserFirstName + " " + p.UserLastName).FirstOrDefault();
-                expenseTransfer.StaffList.Add(new staff { StaffPicture = staffPicture, StaffName = staffName });
-            }
-            return true;
-        }
+        //    foreach (var item in expenseTransfer.StaffIdList)
+        //    {
+        //        byte[] staffPicture = this.userApplicationList.Where(p => p.UserId == item).Select(p => p.UserPicture).FirstOrDefault();
+        //        string staffName = this.userApplicationList.Where(p => p.UserId == item).Select(p => p.UserFirstName + " " + p.UserLastName).FirstOrDefault();
+        //        expenseTransfer.StaffList.Add(new staff { StaffPicture = staffPicture, StaffName = staffName });
+        //    }
+        //    return true;
+        //}
 
-        private class staff
-        {
-            public byte[] StaffPicture { get; set; }
-            public string StaffName { get; set; }
-        }
+        //private class staff
+        //{
+        //    public byte[] StaffPicture { get; set; }
+        //    public string StaffName { get; set; }
+        //}
 
         #endregion
     }

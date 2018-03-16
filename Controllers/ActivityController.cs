@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Cors;
 using ECDC.MIS.API.Model;
 using ECDC.MIS.API.DI;
+using ECDC.MIS.API.ExportClass;
 
 namespace ECDC.MIS.API.Controllers
 {
@@ -132,6 +133,75 @@ namespace ECDC.MIS.API.Controllers
             return query;
         }
 
+        /// <summary>
+        /// Get data to export to csv file
+        /// </summary>
+        /// <param name="awpId">The awpid</param>
+        /// <returns>List of activity for the awpid selected</returns>
+        [HttpGet]
+        [Route("ExportData/{awpId}")]
+        //[ResponseCache(NoStore = true, Duration = 0)]
+        public IEnumerable<ActivityExport> ExportData(long awpId)
+        {
+            misContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+
+            var query = misContext.Activity
+                .Include(p => p.Strategy)
+                .Include(p => p.Unit)
+                .Include(p => p.Dsp)
+                .Include(p => p.Section)
+                .Include(p => p.Awp)
+                .Include(p => p.ActStatus)
+                .Include(p => p.Expense).ThenInclude(e => e.BudgetLine)
+                .Include(p => p.Expense).ThenInclude(e => e.ExpenseType)
+                .Where(p => p.AWPId == awpId)
+                .Where(p => p.ActivityIsDeleted.GetValueOrDefault() != true)
+                .Where(p => p.ActivityIsValidated == true)
+                //.Where(p => p.ActivityIsApproved == true)
+                .Select(activity => new {
+                    activity.ActivityId,
+                    activity.ActivityName,
+                    activity.ActStatusId,
+                    activity.ActivityCodeSequence,
+                    activity.SectionId,
+                    activity.AWPId,
+                    activity.UnitId,
+                    activity.StrategyId,
+                    activity.DSPId,
+                    activity.UserIdActivityLeader,
+                    activity.Section,
+                    activity.Awp,
+                    activity.Strategy,
+                    activity.Unit,
+                    activity.Expense,
+                    activity.ActStatus,
+                    activity.Dsp,
+                    activity.UserIdActivityLeaderNavigation.UserLastName,
+                    activity.UserIdActivityLeaderNavigation.UserFirstName
+                });
+
+            List<ActivityExport> activities = new List<ActivityExport>();
+
+            foreach (var activity in query.ToList())
+            {
+                activities.Add(new ActivityExport
+                {
+                    ActivityId = activity.ActivityId,
+                    ActivityCode = Helper.GetCode(new Activity() { ActivityId = activity.ActivityId, ActivityCodeSequence = activity.ActivityCodeSequence, Strategy = activity.Strategy, Unit = activity.Unit, Awp = activity.Awp, Dsp = activity.Dsp }),
+                    ActivityName = activity.ActivityName,
+                    StrategyCode = activity.Strategy == null ? "" : activity.Strategy.StartegyName,
+                    UnitCode = activity.Unit == null ? "" : activity.Unit.UnitCode,
+                    DpCode = activity.Dsp == null ? "" : activity.Dsp.DspCode,
+                    SectionCode = activity.Section == null ? "" : activity.Section.SectionCode,
+                    ActivityLeader = activity.UserFirstName + " " + activity.UserLastName,
+                    Amount = activity.Expense.Sum(p => p.ExpenseAmount),
+                    StatusName = activity.ActStatus == null ? "" : activity.ActStatus.ActStatusName,
+                });
+            }
+
+            return activities;
+        }
+
         #endregion
 
         #region Get activity detail
@@ -202,12 +272,10 @@ namespace ECDC.MIS.API.Controllers
                     IsEnlargementCountries = activity.ActivityIsEnlargementCountries,
                     IsEnpCountries = activity.ActivityIsEnpCountries,
                     IsOtherThirdCountries = activity.ActivityIsOtherThirdCountries,
-
-
                 };
 
                 transfer.ExpenseList = GetExpenseList(activity.ActivityId);
-                transfer.ActivityLeaderPicture = SetUserPicture(activity);
+                transfer.ActivityLeaderPicture = Helper.SetUserPicture(activity.UserIdActivityLeaderNavigation, defaultUserPictureUrl);
                 return transfer;
             }
             catch (Exception ex)
@@ -285,33 +353,33 @@ namespace ECDC.MIS.API.Controllers
 
         #region helper
 
-        [HttpGet]
-        [Route("userPicture/{activityId}")]
-        [ResponseCache(NoStore = true, Duration = 0)]
-        public string SetUserPicture(long activityId)
-        {
-            byte[] picture = misContext.Activity.Where(p => p.ActivityId == activityId).Select(p => p.UserIdActivityLeaderNavigation.UserPicture).FirstOrDefault();
-            if (picture == null)
-                return Convert.ToBase64String(Helper.ImageToByte(defaultUserPictureUrl)).Substring(1);
+        //[HttpGet]
+        //[Route("userPicture/{activityId}")]
+        //[ResponseCache(NoStore = true, Duration = 0)]
+        //public string SetUserPicture(long activityId)
+        //{
+        //    byte[] picture = misContext.Activity.Where(p => p.ActivityId == activityId).Select(p => p.UserIdActivityLeaderNavigation.UserPicture).FirstOrDefault();
+        //    if (picture == null)
+        //        return Convert.ToBase64String(Helper.ImageToByte(defaultUserPictureUrl)).Substring(1);
 
-            return Convert.ToBase64String(picture).Substring(1);
-        }
+        //    return Convert.ToBase64String(picture).Substring(1);
+        //}
 
-        /// <summary>
-        /// Set up the user picture or default picture
-        /// </summary>
-        /// <param name="activity"></param>
-        /// <returns></returns>
-        private string SetUserPicture(Activity activity)
-        {
-            if (activity.UserIdActivityLeaderNavigation == null)
-                return Convert.ToBase64String(Helper.ImageToByte(defaultUserPictureUrl));
+        ///// <summary>
+        ///// Set up the user picture or default picture
+        ///// </summary>
+        ///// <param name="activity"></param>
+        ///// <returns></returns>
+        //private string SetUserPicture(Activity activity)
+        //{
+        //    if (activity.UserIdActivityLeaderNavigation == null)
+        //        return Convert.ToBase64String(Helper.ImageToByte(defaultUserPictureUrl));
 
-            if (activity.UserIdActivityLeaderNavigation.UserPicture == null)
-                return Convert.ToBase64String(Helper.ImageToByte(defaultUserPictureUrl));
+        //    if (activity.UserIdActivityLeaderNavigation.UserPicture == null)
+        //        return Convert.ToBase64String(Helper.ImageToByte(defaultUserPictureUrl));
 
-            return Convert.ToBase64String(activity.UserIdActivityLeaderNavigation.UserPicture);
-        }
+        //    return Convert.ToBase64String(activity.UserIdActivityLeaderNavigation.UserPicture);
+        //}
 
         #endregion
     }

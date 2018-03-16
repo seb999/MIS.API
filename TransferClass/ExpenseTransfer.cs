@@ -58,7 +58,7 @@ namespace ECDC.MIS.API.TransferClass
         public long? SpdObjectiveId { get; set; }
         public string ProcComment { get; set; }
         public decimal TotalRequestedFte { get;  set; }
-        public long ActivityUnitId{ get;  set; }
-        public long ActivityDpId{ get;  set; }
+        public long UnitId{ get;  set; }
+        public long DpId{ get;  set; }
     }
 }

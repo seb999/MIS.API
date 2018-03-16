@@ -32,7 +32,7 @@ namespace ECDC.MIS.API.TransferClass
         public long UnitId { get; set; }
 
         public List<ExpenseTransfer> ExpenseList { get; set; }
-        public string ActivityLeaderPicture { get; set; }
+        public byte[] ActivityLeaderPicture { get; set; }
 
         public List<long> CoreStaffIds { get; set; }
         public long? ActivityLeaderId { get; set; }
