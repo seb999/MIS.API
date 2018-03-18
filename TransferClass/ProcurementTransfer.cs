@@ -70,6 +70,7 @@ namespace ECDC.MIS.API.TransferClass
         public long? UnitId { get; set; }
         public long? DpId { get; set; }
         public long? SectionId { get; set; }
+        public string ExpenseIdName { get; set; }
 
         // public List<ProcurementStageTransfer> ProcurementStages;
     }

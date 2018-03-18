@@ -57,6 +57,7 @@ namespace ECDC.MIS.API.Controllers
                     StatusIcon = SetStatusIcon(expense.ProcTimingStatus),
                     StatusTooltip = expense.ProcTimingStatus ==null ? "No status" : expense.ProcTimingStatus.ProcTimingStatusName ,
                     ExpenseId = expense.ExpenseId,
+                    ExpenseIdName = expense.ExpenseId.ToString(),
                     BudgetLineCode = expense.BudgetLine.BudgetLineName.Substring(0, 4),
                     ActivityCode = Helper.GetCode(new Activity() { ActivityId = expense.Activity.ActivityId, ActivityCodeSequence = expense.Activity.ActivityCodeSequence, Strategy = expense.Activity.Strategy, Unit = expense.Activity.Unit, Awp = expense.Activity.Awp, Dsp = expense.Activity.Dsp }),
                     ProcurementName = expense.ExpenseName,
