@@ -18,7 +18,7 @@ namespace ECDC.MIS.API.TransferClass
         public string ProcurementType { get; set; }
         public string ProjectManager { get; set; }
         public string SectionCode { get; set; }
-        public string Status { get; set; }
+        public string ProcStatus { get; set; }
         public string StatusIcon { get; set; }
         public object StatusTooltip { get; set; }
         public int TotalBudget { get; set; }
@@ -71,6 +71,8 @@ namespace ECDC.MIS.API.TransferClass
         public long? DpId { get; set; }
         public long? SectionId { get; set; }
         public string ExpenseIdName { get; set; }
+        public long? BudgetLineId { get; internal set; }
+        public long? ProjectManagerId { get; internal set; }
 
         // public List<ProcurementStageTransfer> ProcurementStages;
     }

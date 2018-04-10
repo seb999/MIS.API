@@ -17,15 +17,14 @@ namespace ECDC.MIS.API.Controllers
         private readonly MISContext misContext;
         private readonly UserApplication currentUser;
         private readonly string defaultUserPictureUrl;
-        // private readonly ILookupActivity lookupActivity;
+        private readonly ILookupActivity lookupActivity;
 
-        //public ExpenseStaffController([FromServices]MISContext misContext, ILookupActivity lookupActivity)
-        public ExpenseStaffController([FromServices]MISContext misContext, ILookupUser lookupUser, IHostingEnvironment server)
+        public ExpenseStaffController([FromServices]MISContext misContext, ILookupUser lookupUser, IHostingEnvironment server, ILookupActivity lookupActivity)
         {
             this.misContext = misContext;
             this.currentUser = lookupUser!=null ? lookupUser.CurrentUser: null;
             this.defaultUserPictureUrl = server.WebRootPath + @"\images\DefaultUser.png";
-            // this.lookupActivity = lookupActivity;
+            this.lookupActivity = lookupActivity;
         }
 
         /// <summary>
@@ -92,7 +91,7 @@ namespace ECDC.MIS.API.Controllers
         public List<ExpenseStaffTransfer> Get(long awpId, long userId)
         {
 
-            //List<LookupListItem> ActivityCodeList = lookupActivity.GetLookupActivity(awpId);
+            List<LookupListItem> ActivityCodeList = lookupActivity.GetLookupActivity(awpId);
 
             var query = from expenseStaff in misContext.ExpenseStaff
                         .Include(p => p.UserApplication)
@@ -111,11 +110,10 @@ namespace ECDC.MIS.API.Controllers
                             ActualFte = expenseStaff.ExpenseStaffActualFte,
                             ActivityName = expenseStaff.Expense.Activity.ActivityName,
                             ExpenseName = expenseStaff.Expense.ExpenseName,
-                           // ActivityCode = ActivityCodeList.Where(p => p.Value == expenseStaff.Expense.ActivityId).Select(p => p.Text).FirstOrDefault(),
+                            ActivityCode = ActivityCodeList.Where(p => p.Value == expenseStaff.Expense.ActivityId).Select(p => p.Text).FirstOrDefault(),
                             ActivityId = expenseStaff.Expense.ActivityId
                         };
             return query.ToList();
         }
-
     }
 }

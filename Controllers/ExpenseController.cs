@@ -8,6 +8,7 @@ using System;
 using ECDC.MIS.API.Misc;
 using ECDC.MIS.API.Model;
 using ECDC.MIS.API.DI;
+using ECDC.MIS.API.ExportClass;
 
 namespace ECDC.MIS.API.Controllers
 {
@@ -135,7 +136,7 @@ namespace ECDC.MIS.API.Controllers
 
         private List<ExpenseStaffTransfer> GetExpenseStaffList(long expenseId)
         {
-            ExpenseStaffController expenseStaffController = new ExpenseStaffController(misContext, null, hostingEnvironement);
+            ExpenseStaffController expenseStaffController = new ExpenseStaffController(misContext, null, hostingEnvironement, null);
             return expenseStaffController.GetExpenseStaffList(expenseId);
         }
 
@@ -222,6 +223,51 @@ namespace ECDC.MIS.API.Controllers
         //    public byte[] StaffPicture { get; set; }
         //    public string StaffName { get; set; }
         //}
+
+        #endregion
+
+        #region Export to CSV
+
+        /// <summary>
+        /// Get data to export to csv file
+        /// </summary>
+        /// <param name="awpId">The awpid</param>
+        /// <returns>List of activity for the awpid selected</returns>
+        [HttpGet]
+        [Route("ExportData/{activityId}")]
+        //[ResponseCache(NoStore = true, Duration = 0)]
+        public IEnumerable<ExpenseExport> ExportData(long activityId)
+        {
+            var query = (from expense in misContext.Expense
+                         .Include(p => p.ExpenseType)
+                         .Include(p => p.BudgetLine)
+                         .Include(p => p.UserIdOwnerNavigation)
+                         .Include(p => p.ExpenseBudgetAbac)
+                         .Include(p => p.ExpenseType)
+                         .Include(p => p.ExpenseStaff)
+                         .Include(p => p.Location)
+                         .Include(p => p.ProcConType)
+                         .Include(p => p.UserIdAuthOfficerNavigation)
+                         .Include(p => p.UserIdProcurementOfficerNavigation)
+                         .Include(p => p.ProcType)
+                         .Where(p => p.ActivityId == activityId).ToList()
+                         select new ExpenseExport()
+                         {
+                             ExpenseId = expense.ExpenseId,
+                             ExpenseName = expense.ExpenseName,
+                             ExpenseTypeName = expense.ExpenseType.ExpenseTypeName,
+                             BudgetLineName = expense.BudgetLine == null ? "" : expense.BudgetLine.BudgetLineName,
+                             InitialAmount = expense.ExpenseInitialAmount,
+                             Amount = expense.ExpenseAmount,
+                             StartDate = expense.ExpenseStartDate,
+                             EndDate = expense.ExpenseEndDate,
+                             AmountCommitted = expense.ExpenseBudgetAbac.Where(P => P.ExpenseBudgetAbacType.ToLower() != "c8").Sum(p => p.ExpenseBudgetAbacCommitted),
+                             AmountPaid = expense.ExpenseBudgetAbac.Sum(p => p.ExpenseBudgetAbacPaid),
+                             Organiser = expense.UserIdOwnerNavigation == null ? "" : expense.UserIdOwnerNavigation.UserFirstName + " " + expense.UserIdOwnerNavigation.UserLastName,               
+                         }).ToList();
+
+            return query;
+        }
 
         #endregion
     }

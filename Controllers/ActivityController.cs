@@ -133,75 +133,6 @@ namespace ECDC.MIS.API.Controllers
             return query;
         }
 
-        /// <summary>
-        /// Get data to export to csv file
-        /// </summary>
-        /// <param name="awpId">The awpid</param>
-        /// <returns>List of activity for the awpid selected</returns>
-        [HttpGet]
-        [Route("ExportData/{awpId}")]
-        //[ResponseCache(NoStore = true, Duration = 0)]
-        public IEnumerable<ActivityExport> ExportData(long awpId)
-        {
-            misContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-
-            var query = misContext.Activity
-                .Include(p => p.Strategy)
-                .Include(p => p.Unit)
-                .Include(p => p.Dsp)
-                .Include(p => p.Section)
-                .Include(p => p.Awp)
-                .Include(p => p.ActStatus)
-                .Include(p => p.Expense).ThenInclude(e => e.BudgetLine)
-                .Include(p => p.Expense).ThenInclude(e => e.ExpenseType)
-                .Where(p => p.AWPId == awpId)
-                .Where(p => p.ActivityIsDeleted.GetValueOrDefault() != true)
-                .Where(p => p.ActivityIsValidated == true)
-                //.Where(p => p.ActivityIsApproved == true)
-                .Select(activity => new {
-                    activity.ActivityId,
-                    activity.ActivityName,
-                    activity.ActStatusId,
-                    activity.ActivityCodeSequence,
-                    activity.SectionId,
-                    activity.AWPId,
-                    activity.UnitId,
-                    activity.StrategyId,
-                    activity.DSPId,
-                    activity.UserIdActivityLeader,
-                    activity.Section,
-                    activity.Awp,
-                    activity.Strategy,
-                    activity.Unit,
-                    activity.Expense,
-                    activity.ActStatus,
-                    activity.Dsp,
-                    activity.UserIdActivityLeaderNavigation.UserLastName,
-                    activity.UserIdActivityLeaderNavigation.UserFirstName
-                });
-
-            List<ActivityExport> activities = new List<ActivityExport>();
-
-            foreach (var activity in query.ToList())
-            {
-                activities.Add(new ActivityExport
-                {
-                    ActivityId = activity.ActivityId,
-                    ActivityCode = Helper.GetCode(new Activity() { ActivityId = activity.ActivityId, ActivityCodeSequence = activity.ActivityCodeSequence, Strategy = activity.Strategy, Unit = activity.Unit, Awp = activity.Awp, Dsp = activity.Dsp }),
-                    ActivityName = activity.ActivityName,
-                    StrategyCode = activity.Strategy == null ? "" : activity.Strategy.StartegyName,
-                    UnitCode = activity.Unit == null ? "" : activity.Unit.UnitCode,
-                    DpCode = activity.Dsp == null ? "" : activity.Dsp.DspCode,
-                    SectionCode = activity.Section == null ? "" : activity.Section.SectionCode,
-                    ActivityLeader = activity.UserFirstName + " " + activity.UserLastName,
-                    Amount = activity.Expense.Sum(p => p.ExpenseAmount),
-                    StatusName = activity.ActStatus == null ? "" : activity.ActStatus.ActStatusName,
-                });
-            }
-
-            return activities;
-        }
-
         #endregion
 
         #region Get activity detail
@@ -242,7 +173,6 @@ namespace ECDC.MIS.API.Controllers
                     ActivityId = activity.ActivityId,
                     DateAdded = activity.DateAdded,
                     StatusIcon = activity.ActStatus.ActStatusImgPath.Replace("gif", "png").Replace("~", ""),
-                    StatusName = activity.ActStatus == null ? "" : activity.ActStatus.ActStatusName,
                     ActivityLeader = activity.UserIdActivityLeaderNavigation == null ? "" : activity.UserIdActivityLeaderNavigation.UserFirstName + " " + activity.UserIdActivityLeaderNavigation.UserLastName,
                     ActivityLeaderId = activity.UserIdActivityLeader.GetValueOrDefault(),
 
@@ -272,6 +202,16 @@ namespace ECDC.MIS.API.Controllers
                     IsEnlargementCountries = activity.ActivityIsEnlargementCountries,
                     IsEnpCountries = activity.ActivityIsEnpCountries,
                     IsOtherThirdCountries = activity.ActivityIsOtherThirdCountries,
+
+                    LastMonitorDate = activity.ActivityHistory == null ? null : activity.ActivityHistory.OrderByDescending(p => p.ActHistoryDate).Select(p => p.ActHistoryDate).FirstOrDefault(),
+                    LastMonitoredByUserName = activity.ActivityHistory == null ? null : activity.ActivityHistory.OrderByDescending(p => p.ActHistoryDate).Select(p => string.Format("{0} {1}", p.User.UserFirstName, p.User.UserLastName)).FirstOrDefault(),
+
+                    ReasonForDelay = activity.ActivityDelayReason,
+                    ImmeadiateAction = activity.ActivityImmediateAction,
+                    ProgressNote = activity.ActivityProgress,
+                    NewTimeFrame = activity.ActivityNewTimeframeDate,
+                    StatusName = activity.ActStatus == null ? "" : activity.ActStatus.ActStatusName,
+                    StatusId = activity.ActStatusId,
                 };
 
                 transfer.ExpenseList = GetExpenseList(activity.ActivityId);
@@ -380,6 +320,79 @@ namespace ECDC.MIS.API.Controllers
 
         //    return Convert.ToBase64String(activity.UserIdActivityLeaderNavigation.UserPicture);
         //}
+
+        #endregion
+
+        #region Export to CSV
+
+        /// <summary>
+        /// Get data to export to csv file
+        /// </summary>
+        /// <param name="awpId">The awpid</param>
+        /// <returns>List of activity for the awpid selected</returns>
+        [HttpGet]
+        [Route("ExportData/{awpId}")]
+        //[ResponseCache(NoStore = true, Duration = 0)]
+        public IEnumerable<ActivityExport> ExportData(long awpId)
+        {
+            misContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+
+            var query = misContext.Activity
+                .Include(p => p.Strategy)
+                .Include(p => p.Unit)
+                .Include(p => p.Dsp)
+                .Include(p => p.Section)
+                .Include(p => p.Awp)
+                .Include(p => p.ActStatus)
+                .Include(p => p.Expense).ThenInclude(e => e.BudgetLine)
+                .Include(p => p.Expense).ThenInclude(e => e.ExpenseType)
+                .Where(p => p.AWPId == awpId)
+                .Where(p => p.ActivityIsDeleted.GetValueOrDefault() != true)
+                .Where(p => p.ActivityIsValidated == true)
+                //.Where(p => p.ActivityIsApproved == true)
+                .Select(activity => new {
+                    activity.ActivityId,
+                    activity.ActivityName,
+                    activity.ActStatusId,
+                    activity.ActivityCodeSequence,
+                    activity.SectionId,
+                    activity.AWPId,
+                    activity.UnitId,
+                    activity.StrategyId,
+                    activity.DSPId,
+                    activity.UserIdActivityLeader,
+                    activity.Section,
+                    activity.Awp,
+                    activity.Strategy,
+                    activity.Unit,
+                    activity.Expense,
+                    activity.ActStatus,
+                    activity.Dsp,
+                    activity.UserIdActivityLeaderNavigation.UserLastName,
+                    activity.UserIdActivityLeaderNavigation.UserFirstName
+                });
+
+            List<ActivityExport> activities = new List<ActivityExport>();
+
+            foreach (var activity in query.ToList())
+            {
+                activities.Add(new ActivityExport
+                {
+                    ActivityId = activity.ActivityId,
+                    ActivityCode = Helper.GetCode(new Activity() { ActivityId = activity.ActivityId, ActivityCodeSequence = activity.ActivityCodeSequence, Strategy = activity.Strategy, Unit = activity.Unit, Awp = activity.Awp, Dsp = activity.Dsp }),
+                    ActivityName = activity.ActivityName,
+                    StrategyCode = activity.Strategy == null ? "" : activity.Strategy.StartegyName,
+                    UnitCode = activity.Unit == null ? "" : activity.Unit.UnitCode,
+                    DpCode = activity.Dsp == null ? "" : activity.Dsp.DspCode,
+                    SectionCode = activity.Section == null ? "" : activity.Section.SectionCode,
+                    ActivityLeader = activity.UserFirstName + " " + activity.UserLastName,
+                    Amount = activity.Expense.Sum(p => p.ExpenseAmount),
+                    StatusName = activity.ActStatus == null ? "" : activity.ActStatus.ActStatusName,
+                });
+            }
+
+            return activities;
+        }
 
         #endregion
     }

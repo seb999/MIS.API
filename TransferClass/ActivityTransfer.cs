@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ECDC.MIS.API.Model;
 
 namespace ECDC.MIS.API.TransferClass
 {
@@ -49,5 +50,12 @@ namespace ECDC.MIS.API.TransferClass
         public string UserAdded { get; set; }
         public string ActivityIdName { get; set; }
         public long? CapacityLevelId { get; set; }
+        public DateTime? LastMonitorDate { get; set; }
+        public string ReasonForDelay { get; set; }
+        public string ImmeadiateAction { get; set; }
+        public string LastMonitoredByUserName { get; set; }
+        public string ProgressNote { get; set; }
+        public DateTime? NewTimeFrame { get; set; }
+        public List<ActivityHistory> MonitoringHistoryList { get; set; }
     }
 }

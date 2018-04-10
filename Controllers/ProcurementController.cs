@@ -8,6 +8,7 @@ using System.Linq;
 using System;
 using ECDC.MIS.API.Model;
 using ECDC.MIS.API.TransferClass;
+using ECDC.MIS.API.ExportClass;
 
 namespace ECDC.MIS.API.Controllers
 {
@@ -59,17 +60,23 @@ namespace ECDC.MIS.API.Controllers
                     ExpenseId = expense.ExpenseId,
                     ExpenseIdName = expense.ExpenseId.ToString(),
                     BudgetLineCode = expense.BudgetLine.BudgetLineName.Substring(0, 4),
+                    BudgetLineId = expense.BudgetLineId,
                     ActivityCode = Helper.GetCode(new Activity() { ActivityId = expense.Activity.ActivityId, ActivityCodeSequence = expense.Activity.ActivityCodeSequence, Strategy = expense.Activity.Strategy, Unit = expense.Activity.Unit, Awp = expense.Activity.Awp, Dsp = expense.Activity.Dsp }),
                     ProcurementName = expense.ExpenseName,
                     ProjectManager = SetUserFullName(expense.UserIdOwner),
+                    ProjectManagerId = expense.UserIdOwner,
                     AuthOfficer = SetUserFullName(expense.UserIdAuthOfficer),
+                    AuthOfficerId = expense.UserIdAuthOfficer,
                     ProcOfficer = SetUserFullName(expense.UserIdProcurementOfficer),
+                    ProcOfficerId = expense.UserIdProcurementOfficer,
                     Amount = expense.ExpenseAmount,
                     TotalBudget = 1,
                     ProcurementType = expense.ProcType != null ? expense.ProcType.ProcTypeName : "",
+                    ProcTypeId = expense.ProcTypeId,
                     //ContractType = expense.ContractType != null ? expense.ContractType.ContractTypeName : "",
                     ContractType = expense.ProcConType == null ? "" : expense.ProcConType.ProcConTypeName,
-                    Status = expense.ProcStatus != null ? expense.ProcStatus.ProcStatusName : "",
+                    ProcStatus = expense.ProcStatus != null ? expense.ProcStatus.ProcStatusName : "",
+                    ProcStatusId = expense.ProcStatusId,
                     Comment = expense.ProcComment == null ? "" : expense.ProcComment,
                     UnitCode = expense.Activity.Unit.UnitCode,
                     UnitId = expense.Activity.UnitId,
@@ -79,7 +86,8 @@ namespace ECDC.MIS.API.Controllers
                     SectionId = expense.Activity.SectionId,
                 }).ToList();
 
-            //foreach(var p in query)
+            //Table doesn't exit in prod yet : WAIT
+            //foreach (var p in query)
             //{
             //    GetProcData(p);
             //}
@@ -128,8 +136,6 @@ namespace ECDC.MIS.API.Controllers
                             FinanceAssistantName = expense.UserIdFinancialAssistantNavigation == null ? "" : expense.UserIdFinancialAssistantNavigation.UserFirstName + "" + expense.UserIdFinancialAssistantNavigation.UserLastName,
                             FrameworkTypeId = expense.ProcFrameworkTypeId,
                             FrameworkTypeName = expense.ProcFrameworkType == null ? "" : expense.ProcFrameworkType.ProcFrameworkTypeName,
-                            
-                            
                             DateAdded = expense.DateAdded
                         }).FirstOrDefault();
 
@@ -365,6 +371,59 @@ namespace ECDC.MIS.API.Controllers
         //        logService.SaveLog(currentUser.UserId, LogType.Error, MISPage.ProcurementPage, ex, Method.SaveProcurementStages);
         //    }
         //}
+        #endregion
+
+        #region Export to Csv
+
+        /// <summary>
+        /// Get data to export to csv file
+        /// </summary>
+        /// <param name="awpId">The awpid</param>
+        /// <returns>List of ProcurementExport for the awpid selected</returns>
+        [HttpGet]
+        [Route("ExportData/{awpId}")]
+        //[ResponseCache(NoStore = true, Duration = 0)]
+        public IEnumerable<ProcurementExport> ExportData(long awpId)
+        {
+            misContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+
+            var query = (from expense in misContext.Expense.AsNoTracking()
+               .Include(p => p.Activity).AsNoTracking()
+               .Include(p => p.Activity.Strategy).AsNoTracking()
+               .Include(p => p.Activity.Unit).AsNoTracking()
+               .Include(p => p.Activity.Dsp).AsNoTracking()
+               .Where(p => p.Activity.AWPId.GetValueOrDefault() == awpId)
+               .Where(p => p.ExpenseIsApproved == true)
+               .Where(p => p.Activity.ActivityIsDeleted != true)
+               .Where(p => p.Activity.ActivityIsValidated == true)
+               .Where(p => p.Activity.ActivityIsApproved == true)
+               .Where(p => p.ExpenseType.ExpenseTypeIsProcurement.GetValueOrDefault())
+                         select new ProcurementExport
+                         {
+                             ExpenseId = expense.ExpenseId,
+                             BudgetLineCode = expense.BudgetLine.BudgetLineName,
+                             ActivityCode = Helper.GetCode(new Activity() { ActivityId = expense.Activity.ActivityId, ActivityCodeSequence = expense.Activity.ActivityCodeSequence, Strategy = expense.Activity.Strategy, Unit = expense.Activity.Unit, Awp = expense.Activity.Awp, Dsp = expense.Activity.Dsp }),
+                             ProcurementName = expense.ExpenseName,
+                             ProjectManager = SetUserFullName(expense.UserIdOwner),
+                             AuthOfficer = SetUserFullName(expense.UserIdAuthOfficer),
+                             ProcOfficer = SetUserFullName(expense.UserIdProcurementOfficer),
+                             Amount = expense.ExpenseAmount,
+                             ProcurementType = expense.ProcType != null ? expense.ProcType.ProcTypeName : "",
+                             ContractType = expense.ProcConType == null ? "" : expense.ProcConType.ProcConTypeName,
+                             Status = expense.ProcStatus != null ? expense.ProcStatus.ProcStatusName : "",
+                             NextDeadline = DateTime.Now,
+                             // {{(expense.plannedExpectedContractSignature ? procurement.plannedExpectedContractSignature : (procurement.plannedExpectedLaunch ? procurement.plannedExpectedLaunch : procurement.plannedKickoffDate))| date :'dd/MM/yyyy'}
+                             Comment = expense.ProcComment == null ? "" : expense.ProcComment,
+                         }).ToList();
+
+            //foreach(var p in query)
+            //{
+            //    GetProcData(p);
+            //}
+
+            return query;
+        }
+
         #endregion
 
         #region helper
