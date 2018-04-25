@@ -32,6 +32,8 @@ namespace ECDC.MIS.API.Controllers
             this.misContext = misContext;
         }
 
+        #region load data
+
         /// <summary>
         /// Get list of budget transfer for awpId
         /// </summary>
@@ -52,9 +54,10 @@ namespace ECDC.MIS.API.Controllers
                          {
                              PetId = bt.PetId,
                              Amount = bt.PetAmount,
-                             //IsFinanceNeeded = NeedFinanceApproval(bt),
-                             //IsFinanceInitiatorNeeded = NeedFinanceInitiatorApproval(bt),
+                             IsFinanceNeeded = NeedFinanceApproval(bt),
+                             IsFinanceInitiatorNeeded = NeedFinanceInitiatorApproval(bt),
                              UserIdAdded = bt.UserAdded,
+                             PetType = SetPetType(bt),
                              //UserModFullName = userApplicationFullList.Where(p => p.UserId == bt.UserMod).Select(p => p.UserFullName).FirstOrDefault(),
                              DateMod = bt.DateMod,
                              PetNote = bt.PetNote == null ? "" : bt.PetNote,
@@ -75,7 +78,8 @@ namespace ECDC.MIS.API.Controllers
                              SourceActivityName = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.Activity.ActivityName : "",
                              SourceExpenseName = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.ExpenseName : "",
                              SourceExpenseId = bt.ExpenseIdSource.GetValueOrDefault(),
-                             SourceBudgetLine = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.BudgetLine.BudgetLineName : "",
+                             SourceExpenseIdName = bt.ExpenseIdSource.ToString(),
+                             SourceBudgetLineId = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.BudgetLineId : null,
                              SourceBudgetLineCode = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.BudgetLine.BudgetLineName : "",
                              SourceExpenseType = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.ExpenseType.ExpenseTypeName : "",
                              SourceActivityUnitId = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.Activity.UnitId : null,
@@ -83,7 +87,7 @@ namespace ECDC.MIS.API.Controllers
                              SourceActivityAwpId = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.Activity.AWPId : null,
                              SourceIsTitle1 = bt.ExpenseIdSource.GetValueOrDefault() == 0 ? bt.PetIsBudgetTitle1.GetValueOrDefault() : false,
                              SourceIsTitle2 = bt.ExpenseIdSource.GetValueOrDefault() == 0 ? bt.PetIsBudgetTitle2.GetValueOrDefault() : false,
-                             SourceActivityCode = Helper.GetCode(new Activity() { ActivityId = bt.ExpenseIdSourceNavigation.Activity.ActivityId, ActivityCodeSequence = bt.ExpenseIdSourceNavigation.Activity.ActivityCodeSequence, Strategy = bt.ExpenseIdSourceNavigation.Activity.Strategy, Unit = bt.ExpenseIdSourceNavigation.Activity.Unit, Awp = bt.ExpenseIdSourceNavigation.Activity.Awp, Dsp = bt.ExpenseIdSourceNavigation.Activity.Dsp }),
+                             SourceActivityCode = bt.ExpenseIdSourceNavigation != null ? Helper.GetCode(new Activity() { ActivityId = bt.ExpenseIdSourceNavigation.Activity.ActivityId, ActivityCodeSequence = bt.ExpenseIdSourceNavigation.Activity.ActivityCodeSequence, Strategy = bt.ExpenseIdSourceNavigation.Activity.Strategy, Unit = bt.ExpenseIdSourceNavigation.Activity.Unit, Awp = bt.ExpenseIdSourceNavigation.Activity.Awp, Dsp = bt.ExpenseIdSourceNavigation.Activity.Dsp }):"",
 
                              TargetMotivation = bt.PetMotivationTarget,
                              TargetAmount = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.ExpenseAmount : 0,
@@ -91,7 +95,9 @@ namespace ECDC.MIS.API.Controllers
                              TargetActivityName = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.Activity.ActivityName : "",
                              TargetExpenseName = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.ExpenseName : "",
                              TargetExpenseId = bt.ExpenseIdTarget.GetValueOrDefault(),
-                             TargetBudgetLine = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.BudgetLine.BudgetLineName : "",
+                             TargetExpenseIdName = bt.ExpenseIdTarget.ToString(),
+                             TargetBudgetLineId = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.BudgetLineId : null,
+                            
                              TargetBudgetLineCode = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.BudgetLine.BudgetLineName : "",
                              TargetExpenseType = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.ExpenseType.ExpenseTypeName : "",
                              TargetActivityUnitId = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.Activity.UnitId : null,
@@ -99,7 +105,7 @@ namespace ECDC.MIS.API.Controllers
                              TargetActivityAwpId = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.Activity.AWPId : null,
                              TargetIsTitle1 = bt.ExpenseIdTarget == null ? bt.PetIsBudgetTitle1.GetValueOrDefault() : false,
                              TargetIsTitle2 = bt.ExpenseIdTarget == null ? bt.PetIsBudgetTitle2.GetValueOrDefault() : false,
-                             TargetActivityCode = Helper.GetCode(new Activity() { ActivityId = bt.ExpenseIdTargetNavigation.Activity.ActivityId, ActivityCodeSequence = bt.ExpenseIdTargetNavigation.Activity.ActivityCodeSequence, Strategy = bt.ExpenseIdTargetNavigation.Activity.Strategy, Unit = bt.ExpenseIdTargetNavigation.Activity.Unit, Awp = bt.ExpenseIdTargetNavigation.Activity.Awp, Dsp = bt.ExpenseIdTargetNavigation.Activity.Dsp }),
+                             TargetActivityCode = bt.ExpenseIdTargetNavigation != null ? Helper.GetCode(new Activity() { ActivityId = bt.ExpenseIdTargetNavigation.Activity.ActivityId, ActivityCodeSequence = bt.ExpenseIdTargetNavigation.Activity.ActivityCodeSequence, Strategy = bt.ExpenseIdTargetNavigation.Activity.Strategy, Unit = bt.ExpenseIdTargetNavigation.Activity.Unit, Awp = bt.ExpenseIdTargetNavigation.Activity.Awp, Dsp = bt.ExpenseIdTargetNavigation.Activity.Dsp }):"",
 
                              //Wokflow source
                              SourceIsHoUAutorized = bt.PetIsHeadOfUnitSourceAutorized,
@@ -135,7 +141,117 @@ namespace ECDC.MIS.API.Controllers
                 //    SetPetType(bt);
                 //    SetWorkflow(bt);
                 return query.ToList();
-            }
+        }
+
+        /// <summary>
+        /// Get a budgetTransfer for a petId
+        /// </summary>
+        /// <param name="petId">The petId</param>
+        /// <returns>The BudgetTransfer</returns>
+        [HttpGet]
+        [Route("getBudgetTransfer/{petId}")]
+        [ResponseCache(NoStore = true, Duration = 0)]
+        public BudgetTransferTransfer GetBudgetTransfer(long petId)
+        {
+            var query = (from bt in misContext.PendingExpenseTransfer.AsNoTracking()
+                         .Include(p => p.PetStatus).AsNoTracking()
+                         .Include(p => p.ExpenseIdSourceNavigation).ThenInclude(p => p.Activity).AsNoTracking()
+                         .Include(p => p.ExpenseIdTargetNavigation).ThenInclude(p => p.Activity).AsNoTracking()
+                         .Where(p => p.PetIsDeleted != true)
+                         .Where(p => p.PetId == petId)
+                         select new BudgetTransferTransfer
+                         {
+                             PetId = bt.PetId,
+                             Amount = bt.PetAmount,
+                             IsFinanceNeeded = NeedFinanceApproval(bt),
+                             IsFinanceInitiatorNeeded = NeedFinanceInitiatorApproval(bt),
+                             UserIdAdded = bt.UserAdded,
+                             PetType = SetPetType(bt),
+                             //UserModFullName = userApplicationFullList.Where(p => p.UserId == bt.UserMod).Select(p => p.UserFullName).FirstOrDefault(),
+                             DateMod = bt.DateMod,
+                             PetNote = bt.PetNote == null ? "" : bt.PetNote,
+                             ValidationType = BudgetTransferValidationType.None,
+                             AbacReference = bt.PetAbacReference,
+
+                             PetStatusIsPending = bt.PetStatus.PetIsPending,
+                             PetStatusIsExecuted = bt.PetStatus.PetIsExecuted,
+                             PetStatusIsRejected = bt.PetStatus.PetIsRejected,
+                             PetStatusId = bt.PetStatusId,
+                             PetStatusName = bt.PetStatus == null ? "" : bt.PetStatus.PetStatusName,
+                             //PetStatusIcon = SetStatusIcon(bt),
+                             PetStatusTooltip = bt.PetStatus == null ? "No status" : bt.PetStatus.PetStatusName,
+
+                             SourceMotivation = bt.PetMotivation,
+                             SourceAmount = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.ExpenseAmount : 0,
+                             SourceActivityId = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.ActivityId : 0,
+                             SourceActivityName = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.Activity.ActivityName : "",
+                             SourceExpenseName = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.ExpenseName : "",
+                             SourceExpenseId = bt.ExpenseIdSource.GetValueOrDefault(),
+                             SourceExpenseIdName = bt.ExpenseIdSource.ToString(),
+                             SourceBudgetLineId = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.BudgetLineId : null,
+                             SourceBudgetLineCode = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.BudgetLine.BudgetLineName : "",
+                             SourceExpenseType = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.ExpenseType.ExpenseTypeName : "",
+                             SourceActivityUnitId = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.Activity.UnitId : null,
+                             SourceActivityDpId = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.Activity.DSPId : null,
+                             SourceActivityAwpId = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.Activity.AWPId : null,
+                             SourceIsTitle1 = bt.ExpenseIdSource.GetValueOrDefault() == 0 ? bt.PetIsBudgetTitle1.GetValueOrDefault() : false,
+                             SourceIsTitle2 = bt.ExpenseIdSource.GetValueOrDefault() == 0 ? bt.PetIsBudgetTitle2.GetValueOrDefault() : false,
+                             SourceActivityCode = bt.ExpenseIdSourceNavigation != null ? Helper.GetCode(new Activity() { ActivityId = bt.ExpenseIdSourceNavigation.Activity.ActivityId, ActivityCodeSequence = bt.ExpenseIdSourceNavigation.Activity.ActivityCodeSequence, Strategy = bt.ExpenseIdSourceNavigation.Activity.Strategy, Unit = bt.ExpenseIdSourceNavigation.Activity.Unit, Awp = bt.ExpenseIdSourceNavigation.Activity.Awp, Dsp = bt.ExpenseIdSourceNavigation.Activity.Dsp }):"",
+
+                             TargetMotivation = bt.PetMotivationTarget,
+                             TargetAmount = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.ExpenseAmount : 0,
+                             TargetActivityId = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.ActivityId.GetValueOrDefault() : 0,
+                             TargetActivityName = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.Activity.ActivityName : "",
+                             TargetExpenseName = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.ExpenseName : "",
+                             TargetExpenseId = bt.ExpenseIdTarget.GetValueOrDefault(),
+                             TargetExpenseIdName = bt.ExpenseIdTarget.ToString(),
+                             TargetBudgetLineId = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.BudgetLineId : null,
+                             TargetBudgetLineCode = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.BudgetLine.BudgetLineName : "",
+                             TargetExpenseType = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.ExpenseType.ExpenseTypeName : "",
+                             TargetActivityUnitId = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.Activity.UnitId : null,
+                             TargetActivityDpId = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.Activity.DSPId : null,
+                             TargetActivityAwpId = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.Activity.AWPId : null,
+                             TargetIsTitle1 = bt.ExpenseIdTarget == null ? bt.PetIsBudgetTitle1.GetValueOrDefault() : false,
+                             TargetIsTitle2 = bt.ExpenseIdTarget == null ? bt.PetIsBudgetTitle2.GetValueOrDefault() : false,
+                             TargetActivityCode = bt.ExpenseIdTargetNavigation != null ? Helper.GetCode(new Activity() { ActivityId = bt.ExpenseIdTargetNavigation.Activity.ActivityId, ActivityCodeSequence = bt.ExpenseIdTargetNavigation.Activity.ActivityCodeSequence, Strategy = bt.ExpenseIdTargetNavigation.Activity.Strategy, Unit = bt.ExpenseIdTargetNavigation.Activity.Unit, Awp = bt.ExpenseIdTargetNavigation.Activity.Awp, Dsp = bt.ExpenseIdTargetNavigation.Activity.Dsp }):"",
+
+                             //Wokflow source
+                             SourceIsHoUAutorized = bt.PetIsHeadOfUnitSourceAutorized,
+                             SourceHoUAutorizedDate = bt.PetDateHeadOfUnitSourceApproval,
+                             SourceIsHoURejected = bt.PetIsHeadOfUnitSourceRejected,
+                             SourceHoURejectedDate = bt.PetDateHeadOfUnitSourceRejected,
+                             //SourceHoUFullNameAutorize = userApplicationFullList.Where(p => p.UserId == bt.UserIdHeadOfUnitSourceAutorized).Select(p => p.UserFullName).FirstOrDefault(),
+
+                             //Wokflow target
+                             TargetIsHoUAutorized = bt.PetIsHeadOfUnitTargetAutorized,
+                             TargetHoUAutorizedDate = bt.PetDateHeadOfUnitTargetApproval,
+                             TargetIsHoURejected = bt.PetIsHeadOfUnitTargetRejected,
+                             TargetHoURejectedDate = bt.PetDateHeadOfUnitTargetRejected,
+                             //TargetHoUFullNameAutorize = userApplicationFullList.Where(p => p.UserId == bt.UserIdHeadOfUnitTargetAutorized).Select(p => p.UserFullName).FirstOrDefault(),
+
+                             //Wokflow finance initiator
+                             FinanceInitiatorRejected = bt.PetIsFinanceInitRejected,
+                             FinanceInitiatorRejectedDate = bt.PetDateFinanceInitRejected,
+                             FinanceInitiatorAutorized = bt.PetIsFinanceInitAutorized,
+                             //FinanceInitiatorAutorizeFullName = userApplicationFullList.Where(p => p.UserId == bt.UserIdAutorized).Select(p => p.UserFullName).FirstOrDefault(),
+                             FinanceInitiatorAutorizeDate = bt.PetDateApproval,
+
+                             //Wokflow finance
+                             FinanceRejected = bt.PetIsFinanceRejected,
+                             FinanceRejectedDate = bt.PetDateFinanceRejected,
+                             FinanceAutorized = bt.PetIsAutorized,
+                             //FinanceAutorizeFullName = userApplicationFullList.Where(p => p.UserId == bt.UserIdAutorized).Select(p => p.UserFullName).FirstOrDefault(),
+                             FinanceAutorizeDate = bt.PetDateApproval,
+
+                             //RejectedFullName = userApplicationFullList.Where(p => p.UserId == bt.UserIdRejected).Select(p => p.UserFullName).FirstOrDefault(),
+                         }).FirstOrDefault();
+
+                //    SetPetType(bt);
+                //    SetWorkflow(bt);
+                return query;
+        }
+
+        #endregion
 
         #region List of BudgetTransfer for ActivityDetail page
 
@@ -217,10 +333,8 @@ namespace ECDC.MIS.API.Controllers
         #region Export to CSV
 
         /// <summary>
-        /// Get data to export to csv file
+        /// Get data to export to csv file for Activity detail page
         /// </summary>
-        /// <param name="awpId">The awpid</param>
-        /// <returns>List of activity for the awpid selected</returns>
         [HttpGet]
         [Route("ExportData/{activityId}")]
         //[ResponseCache(NoStore = true, Duration = 0)]
@@ -280,8 +394,46 @@ namespace ECDC.MIS.API.Controllers
             return result;
         }
 
+
+        [HttpGet]
+        [Route("ExportDataBis/{awpId}")]
+        public IEnumerable<BudgetTransferExport> ExportDataBis(long awpId)
+        {
+            var query = (from bt in misContext.PendingExpenseTransfer.AsNoTracking()
+                         .Include(p => p.PetStatus).AsNoTracking()
+                         .Include(p => p.ExpenseIdSourceNavigation).ThenInclude(p => p.Activity).AsNoTracking()
+                         .Include(p => p.ExpenseIdTargetNavigation).ThenInclude(p => p.Activity).AsNoTracking()
+                         .Where(p => p.PetIsDeleted != true)
+                         .Where(p => p.ExpenseIdSourceNavigation.Activity != null ? p.ExpenseIdSourceNavigation.Activity.AWPId == awpId : p.ExpenseIdTargetNavigation.Activity != null ? p.ExpenseIdTargetNavigation.Activity.AWPId == awpId : false)
+                         select new BudgetTransferExport
+                         {
+                             PetId = bt.PetId,
+ 
+                             SourceActivityCode = Helper.GetCode(new Activity() { ActivityId = bt.ExpenseIdSourceNavigation.Activity.ActivityId, ActivityCodeSequence = bt.ExpenseIdSourceNavigation.Activity.ActivityCodeSequence, Strategy = bt.ExpenseIdSourceNavigation.Activity.Strategy, Unit = bt.ExpenseIdSourceNavigation.Activity.Unit, Awp = bt.ExpenseIdSourceNavigation.Activity.Awp, Dsp = bt.ExpenseIdSourceNavigation.Activity.Dsp }),
+                             SourceActivityName = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.Activity.ActivityName : "",
+                             SourceExpenseName = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.ExpenseName : "",
+                             SourceBudgetLineCode = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.BudgetLine.BudgetLineName : "",
+                             SourceExpenseType = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.ExpenseType.ExpenseTypeName : "",
+                             SourceAmount = bt.ExpenseIdSourceNavigation != null ? bt.ExpenseIdSourceNavigation.ExpenseAmount : 0,
+                             SourceMotivation = bt.PetMotivation,
+                           
+                             TargetActivityCode = Helper.GetCode(new Activity() { ActivityId = bt.ExpenseIdTargetNavigation.Activity.ActivityId, ActivityCodeSequence = bt.ExpenseIdTargetNavigation.Activity.ActivityCodeSequence, Strategy = bt.ExpenseIdTargetNavigation.Activity.Strategy, Unit = bt.ExpenseIdTargetNavigation.Activity.Unit, Awp = bt.ExpenseIdTargetNavigation.Activity.Awp, Dsp = bt.ExpenseIdTargetNavigation.Activity.Dsp }),
+                             TargetActivityName = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.Activity.ActivityName : "",
+                             TargetExpenseName = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.ExpenseName : "",
+                             TargetBudgetLineCode = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.BudgetLine.BudgetLineName : "",
+                             TargetExpenseType = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.ExpenseType.ExpenseTypeName : "",
+                             TargetAmount = bt.ExpenseIdTargetNavigation != null ? bt.ExpenseIdTargetNavigation.ExpenseAmount : 0,
+                             TargetMotivation = bt.PetMotivationTarget,
+
+                             Amount = bt.PetAmount,
+                             PetStatusName = bt.PetStatus == null ? "" : bt.PetStatus.PetStatusName,
+                         }).ToList();
+
+                return query.ToList();
+        }
+
         #endregion
-    }
+    
 
 
 
@@ -494,21 +646,21 @@ namespace ECDC.MIS.API.Controllers
 
     //#endregion
 
-    //#region workflow
+    #region workflow
 
-    //private static bool NeedFinanceApproval(PendingExpenseTransfer bt)
-    //{
-    //    if (bt.ExpenseIdSourceNavigation == null || bt.ExpenseIdTargetNavigation == null) return true;
-    //    return bt.ExpenseIdSourceNavigation.BudgetLineId != bt.ExpenseIdTargetNavigation.BudgetLineId;
-    //}
+    private static bool NeedFinanceApproval(PendingExpenseTransfer bt)
+    {
+       if (bt.ExpenseIdSourceNavigation == null || bt.ExpenseIdTargetNavigation == null) return true;
+       return bt.ExpenseIdSourceNavigation.BudgetLineId != bt.ExpenseIdTargetNavigation.BudgetLineId;
+    }
 
-    //private static bool NeedFinanceInitiatorApproval(PendingExpenseTransfer bt)
-    //{
-    //    if (bt.ExpenseIdSourceNavigation == null || bt.ExpenseIdTargetNavigation == null) return false;
-    //    if (bt.ExpenseIdSourceNavigation.BudgetLineId != bt.ExpenseIdTargetNavigation.BudgetLineId) return false;
-    //    return  bt.ExpenseIdSourceNavigation.Activity.DSPId != bt.ExpenseIdTargetNavigation.Activity.DSPId
-    //        || bt.ExpenseIdSourceNavigation.Activity.UnitId != bt.ExpenseIdTargetNavigation.Activity.UnitId;
-    //}
+    private static bool NeedFinanceInitiatorApproval(PendingExpenseTransfer bt)
+    {
+       if (bt.ExpenseIdSourceNavigation == null || bt.ExpenseIdTargetNavigation == null) return false;
+       if (bt.ExpenseIdSourceNavigation.BudgetLineId != bt.ExpenseIdTargetNavigation.BudgetLineId) return false;
+       return  bt.ExpenseIdSourceNavigation.Activity.DSPId != bt.ExpenseIdTargetNavigation.Activity.DSPId
+           || bt.ExpenseIdSourceNavigation.Activity.UnitId != bt.ExpenseIdTargetNavigation.Activity.UnitId;
+    }
 
     //private bool SetWorkflow(BudgetTransferTransfer bt)
     //{
@@ -590,22 +742,29 @@ namespace ECDC.MIS.API.Controllers
     //    return true;
     //}
 
-    //#endregion
+    #endregion
 
-    //#region helper
+    #region helper
 
-    //private bool SetPetType(BudgetTransferTransfer bt)
-    //{
-    //    bt.PetType = "";
+    private string SetPetType(PendingExpenseTransfer bt)
+    {
+        if (bt.ExpenseIdSourceNavigation == null)
+           return "differentBL";
 
-    //    if (bt.SourceBudgetLine != bt.TargetBudgetLine)
-    //        bt.PetType = "differentBL";
+        if (bt.ExpenseIdTargetNavigation == null)
+           return "differentBL";
 
-    //    if(bt.SourceBudgetLine == bt.TargetBudgetLine && (bt.SourceActivityUnitId != bt.TargetActivityUnitId || bt.SourceActivityDpId != bt.TargetActivityDpId))
-    //        bt.PetType = "differentLL";
+        if (bt.ExpenseIdSourceNavigation.BudgetLineId != bt.ExpenseIdTargetNavigation.BudgetLineId)
+           return "differentBL";
 
-    //    return true; 
-    //}
+        if(bt.ExpenseIdSourceNavigation.BudgetLineId == bt.ExpenseIdTargetNavigation.BudgetLineId 
+        && (bt.ExpenseIdSourceNavigation.ActivityId != bt.ExpenseIdTargetNavigation.ActivityId 
+            || bt.ExpenseIdSourceNavigation.Activity.DSPId != bt.ExpenseIdTargetNavigation.Activity.DSPId))
+           return "differentLL";
+
+           return "";
+
+    }
 
     //private List<LookupListItem> GetActivityCodeList(long awpId)
     //{
@@ -659,7 +818,8 @@ namespace ECDC.MIS.API.Controllers
     //    else return @"\Images\GrayDot.png";
     //}
 
-    //#endregion
+    #endregion
 
 
+    }
 }

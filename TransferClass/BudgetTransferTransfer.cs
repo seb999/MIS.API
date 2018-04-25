@@ -18,7 +18,7 @@ namespace ECDC.MIS.API.TransferClass
 
         public string SourceActivityCode { get; set; }
         public long? SourceActivityId { get; set; }
-        public string SourceBudgetLine { get; set; }
+        public long? SourceBudgetLineId { get; set; }
         public object SourceBudgetLineCode { get; set; }
         public string SourceActivityName { get; set; }
         public string SourceExpenseName { get; set; }
@@ -35,7 +35,7 @@ namespace ECDC.MIS.API.TransferClass
 
         public string TargetActivityCode { get; set; }
         public long? TargetActivityId { get; set; }
-        public string TargetBudgetLine { get; set; }
+        public long? TargetBudgetLineId { get; set; }
         public string TargetBudgetLineCode { get; set; }
         public string TargetActivityName { get; set; }
         public string TargetExpenseName { get; set; }
@@ -89,5 +89,7 @@ namespace ECDC.MIS.API.TransferClass
         //For budget transfer summary in activityDetail
         public decimal? SourceInitialAmount { get; internal set; }
         public decimal? TargetInitialAmount { get; internal set; }
+        public string SourceExpenseIdName { get; internal set; }
+        public string TargetExpenseIdName { get; internal set; }
     }
 }

@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using ECDC.MIS.API.Model;
 using ECDC.MIS.API.DI;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Cors.Internal;
 
 namespace ECDC.MIS.API
 {
@@ -29,6 +31,7 @@ namespace ECDC.MIS.API
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials()
+                .Build()
                 );
             });
 
@@ -57,20 +60,21 @@ namespace ECDC.MIS.API
 
 
             services.AddMvc();
-
-            
+            //services.Configure<MvcOptions>(options =>
+            //{
+            //    options.Filters.Add(new CorsAuthorizationFilterFactory("CorsPolicy"));
+            //});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseCors("CorsPolicy");
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors("CorsPolicy");
             app.UseMvc();
             
         }

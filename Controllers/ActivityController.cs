@@ -14,7 +14,6 @@ using ECDC.MIS.API.ExportClass;
 
 namespace ECDC.MIS.API.Controllers
 {
-    [EnableCors("CorsPolicy")]
     [Route("api/[controller]")]
     public class ActivityController : Controller
     {
@@ -396,12 +395,5 @@ namespace ECDC.MIS.API.Controllers
         }
 
         #endregion
-
-        [HttpPost]
-        [Route("save")]
-        public void Save([FromBody]ActivityTransfer activity)
-        {
-            var ttt = activity;
-        }
     }
 }

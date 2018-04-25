@@ -260,6 +260,7 @@ namespace ECDC.MIS.API.Controllers
             }
             catch (Exception ex)
             {
+                var tt = ex;
                 //logService.SaveLog(currentUser.UserId, LogType.Error, MISPage.ProcurementPage, ex, Method.SaveProcurement);
             }
         }
@@ -327,6 +328,7 @@ namespace ECDC.MIS.API.Controllers
             }
             catch (Exception ex)
             {
+                var tt = ex;
                 //logService.SaveLog(currentUser.UserId, LogType.Error, MISPage.ProcurementPage, ex, Method.SaveChildProcurement);
             }
         }

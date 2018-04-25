@@ -60,7 +60,6 @@ namespace ECDC.MIS.API.DI
 
         private static string GetCurrentUserLoginName(HttpContext httpContextAccessor)
         {
-          
             string userName = httpContextAccessor.User.Identity.Name;
             if (userName != null)
             {

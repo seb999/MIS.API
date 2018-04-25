@@ -93,7 +93,7 @@ namespace ECDC.MIS.API.DI
             BudgetLineList = GetLookupListNew<BudgetLine>(misContext.BudgetLine);
             StrategyList = GetLookupListNew<Strategy>(misContext.Strategy);
             ActivityStatusList = GetLookupListNew<ActivityStatus>(misContext.ActivityStatus);
-            //MeetingStatusList = GetLookupListNew<MeetingStatus>(misContext.MeetingStatus);
+            MeetingStatusList = GetLookupListNew<MeetingStatus>(misContext.MeetingStatus);
             AwpList = GetLookupListNew<AnnualWorkPlan>(misContext.AnnualWorkPlan);
             DPList = GetLookupListNew<Dsp>(misContext.Dsp);
             ProcTypeList = GetLookupListNew<ProcurementType>(misContext.ProcurementType);
@@ -102,7 +102,7 @@ namespace ECDC.MIS.API.DI
             //UserGradeList = GetLookupListNew<UserGrade>(misContext.UserGrade);
             //UserRoleList = GetLookupListNew<UserRole>(misContext.UserRole);
             //TagList = GetLookupListNew<Tag>(misContext.Tag);
-            //BudgetTransferStatusList = GetLookupListNew<PendingTransferStatus>(misContext.PendingTransferStatus);
+            BudgetTransferStatusList = GetLookupListNew<PendingTransferStatus>(misContext.PendingTransferStatus);
             //ExpenseStaffStatusList = GetLookupListNew<ExpenseStaffStatus>(misContext.ExpenseStaffStatus);
             UnitList = GetLookupListNew<Unit>(misContext.Unit);
             ExpenseTypeList = GetLookupListNew<ExpenseType>(misContext.ExpenseType);
@@ -111,7 +111,7 @@ namespace ECDC.MIS.API.DI
             //ProcTimingStatusList = GetLookupListNew<ProcurementTimingStatus>(misContext.ProcurementTimingStatus);
             ProcOfficerList = GetLookupListNew<UserApplication>(misContext.UserApplication, "ProcOfficer").OrderBy(p => p.Text).ToList();
             AuthOfficerList = GetLookupListNew<UserApplication>(misContext.UserApplication, "AuthOfficer").OrderBy(p => p.Text).ToList();
-            //FinanceInitiatorList = GetLookupListNew<UserApplication>(misContext.UserApplication, "FinanceInitiator").OrderBy(p => p.Text).ToList();
+            FinanceInitiatorList = GetLookupListNew<UserApplication>(misContext.UserApplication, "FinanceInitiator").OrderBy(p => p.Text).ToList();
             //LocationList = GetLookupListNew<Location>(misContext.Location);
             //ExpensePlatoStatusList = GetLookupListNew<ExpensePlatoStatus>(misContext.ExpensePlatoStatus);
             //FunctionalGroupList = GetLookupListNew<GroupActivity>(misContext.GroupActivity);

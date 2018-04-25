@@ -60,5 +60,9 @@ namespace ECDC.MIS.API.TransferClass
         public decimal TotalRequestedFte { get;  set; }
         public long UnitId{ get;  set; }
         public long DpId{ get;  set; }
+        public string SpdKeyOutputName { get; set; }
+        public string SpdObjectiveName { get; set; }
+        public string RecurrenceName { get; set; }
+        public string CapacityLevelName { get; set; }
     }
 }

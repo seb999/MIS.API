@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ECDC.MIS.API.Model;
 
 namespace ECDC.MIS.API.TransferClass
 {
@@ -21,16 +22,17 @@ namespace ECDC.MIS.API.TransferClass
         public string StatusName { get; set; }
         public string UnitCode { get; set; }
         public string SectionCode { get; set; }
+
         public string DPCode { get; set; }
         public decimal? InitialAmount { get; set; }
         public string BudgetLineName { get; set; }
         public decimal? AmountRequested { get; set; }
-        public long? StatusId { get; set; }
+        public long? MeetingStatusId { get; set; }
         public string ApprovalStatusName { get; set; }
         public string MeetingStartMonth { get; set; }
         public string MeetingEndMonth { get; set; }
         public long? BudgetLineId { get; set; }
-        public long? OrganiserId { get; set; }
+        public long? OwnerId { get; set; }
         public int? MeetingDuration { get; set; }
         public int? MeetingNumExtParticipants { get; set; }
         public int? MeetingNumIntParticipantsActual { get; set; }
@@ -46,6 +48,9 @@ namespace ECDC.MIS.API.TransferClass
         public bool? MeetingShouldBeInitiated { get; set; }
         public bool IsOutsourced { get; set; }
         public bool IsDeclarationOfInterest { get; set; }
+        public long? UnitId { get; set; }
+        public long? DpId { get; set; }
+        public long? SectionId { get; set; }
  
         public bool IsNonEUCountry { get; set; }
         public bool IsEndDatePending { get; set; }
@@ -59,7 +64,6 @@ namespace ECDC.MIS.API.TransferClass
         public bool IsEditEnable { get; set; }
         public bool IsPartialEditEnable { get; set; }
         public bool IsApprovalEnable { get; set; }
-        public long? UnitId { get; set; }
         public string ApprovalStatusDescription { get; set; }
         public List<long?> UserWithEditRight { get; set; }
         public string RequestedApproval { get; set; }
@@ -67,5 +71,6 @@ namespace ECDC.MIS.API.TransferClass
         public List<MeetingTransfer> SubMeetingList { get; set; }
         public int SubMeetingNumber { get; set; }
         public long MeetingId { get; set; }
+        public Expense ExpenseBase { get; internal set; }
     }
 }

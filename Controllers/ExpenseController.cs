@@ -95,11 +95,15 @@ namespace ECDC.MIS.API.Controllers
                              DateAdded = expense.DateAdded,
                              ExpenseNote = expense.ExpenseNote,
                              RecurrenceId = expense.RecurrenceId,
+                             RecurrenceName = expense.Recurrence == null ? "" : expense.Recurrence.RecurrenceName,
                              CapacityLevelId = expense.CapacityLevelId,
+                             CapacityLevelName = expense.CapacityLevel == null ? "" : expense.CapacityLevel.CapacityLevelName,
                              IsPriority20 = expense.ExpenseIsPriority20,
                              IsPriority80 = expense.ExpenseIsPriority80,
                              SpdKeyOutputId = expense.SpdKeyOutputId,
+                             SpdKeyOutputName = expense.SpdKeyOutput == null ? "" : expense.SpdKeyOutput.SpdKeyOutputName,
                              SpdObjectiveId = expense.SpdObjectiveId,
+                             SpdObjectiveName = expense.SpdObjective == null ? "" : expense.SpdObjective.SpdObjectiveName,
 
                              //Total FTE
                              TotalFte = expense.ExpenseStaff != null ? Math.Round(expense.ExpenseStaff.Sum(p => p.ExpenseStaffPlanDay / 160).GetValueOrDefault(), 2) : 0,

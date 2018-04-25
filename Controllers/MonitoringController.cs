@@ -87,6 +87,7 @@ namespace ECDC.MIS.API.Controllers
             }
             catch(Exception ex)
             {
+                var tt = ex;
                 //logService.SaveLog(lookupUser.CurrentUser.UserId, LogType.Error, MISPage.ActivityPage, ex, Method.SaveActivity);
                 return null;    
             }
@@ -101,7 +102,6 @@ namespace ECDC.MIS.API.Controllers
         [HttpPost]
         public long Post([FromBody]ActivityTransfer activityTransfer)
         {
-            return 1;
             try
             {
                 Activity activity = misContext.Activity
@@ -162,6 +162,7 @@ namespace ECDC.MIS.API.Controllers
             }
             catch (Exception ex)
             {
+                var tt = ex;
                 //logService.SaveLog(lookupUser.CurrentUser.UserId, LogType.Error, MISPage.ActivityPage, ex, Method.MonitorActivity);
                 return 0;
             }
